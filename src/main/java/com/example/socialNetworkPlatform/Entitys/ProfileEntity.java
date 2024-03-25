@@ -1,5 +1,7 @@
 package com.example.socialNetworkPlatform.Entitys;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.*;
@@ -10,23 +12,21 @@ public class ProfileEntity {
 
     @Id
     private UUID id_profile;
-
     private String username;
     private String password;
     private String bio;
     private String email;
 
-    @ManyToOne
-    @JoinColumn(name = "joinProfileFollower")
-    private FollowerEntity id_follower;
+    @ManyToMany
+    @JoinTable(
+        name = "follows",
+        joinColumns = @JoinColumn(name = "follower_id"), // Cambia il nome della colonna per i follower
+        inverseJoinColumns = @JoinColumn(name = "followed_id") // Cambia il nome della colonna per i seguiti
+    )
+    private Set<ProfileEntity> following = new HashSet<>();
 
-    public FollowerEntity getId_follower() {
-        return id_follower;
-    }
-
-    public void setId_follower(FollowerEntity id_follower) {
-        this.id_follower = id_follower;
-    }
+    @ManyToMany(mappedBy = "following")
+    private Set<ProfileEntity> followers = new HashSet<>();
 
     public UUID getId_profile() {
         return id_profile;
@@ -66,6 +66,22 @@ public class ProfileEntity {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Set<ProfileEntity> getFollowing() {
+        return following;
+    }
+
+    public void setFollowing(Set<ProfileEntity> following) {
+        this.following = following;
+    }
+
+    public Set<ProfileEntity> getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(Set<ProfileEntity> followers) {
+        this.followers = followers;
     }
 
 }

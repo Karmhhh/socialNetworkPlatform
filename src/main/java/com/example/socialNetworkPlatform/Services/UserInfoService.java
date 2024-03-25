@@ -30,6 +30,7 @@ public class UserInfoService implements UserDetailsService {
     @Autowired
     private PostRepository postRepository;
 
+
     @Autowired
     PasswordEncoder encoder;
 
@@ -99,7 +100,7 @@ public class UserInfoService implements UserDetailsService {
                 posts.clear();
             }
 
-            userDto.setUserId(user.getId_profile());
+            userDto.setId_profile(user.getId_profile());
             userDto.setEmail(user.getEmail());
             userDto.setUsername(user.getUsername());
             userDto.setBio(user.getBio());
@@ -121,6 +122,24 @@ public class UserInfoService implements UserDetailsService {
 
         }
         return filtredPosts;
+    }
+
+    public ProfileEntity follow(UUID followerId, UUID followedId) {
+        Optional<ProfileEntity> followerOptional = userRepository.findById(followerId);
+        Optional<ProfileEntity> followedOptional = userRepository.findById(followedId);
+
+        if (followerOptional.isPresent() && followedOptional.isPresent()) {
+            ProfileEntity follower = followerOptional.get();
+            ProfileEntity followed = followedOptional.get();
+
+            follower.getFollowing().add(followed);
+            followed.getFollowers().add(follower);
+
+            return userRepository.save(follower);
+        } else {
+            // Gestionare il caso in cui uno o entrambi i profili non esistano
+            return null;
+        }
     }
 
     public ResponseEntity<String> changePassword(String username, String oldPass, String pass) {

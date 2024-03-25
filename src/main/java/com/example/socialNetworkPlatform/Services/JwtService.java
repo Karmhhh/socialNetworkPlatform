@@ -1,6 +1,5 @@
 package com.example.socialNetworkPlatform.Services;
 
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +20,19 @@ import java.util.Date;
 
 @Component
 public class JwtService {
+    // Estrae il token dall'eder all'evenienza elimina il Barer e restituisce solo
+    // il token
+    public static String extractToken(String authHeader) {
+        // Controlla se l'intestazione è nel formato corretto
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            // Se sì, estrai il token rimuovendo la parte "Bearer "
+            return authHeader.substring(7);
+        } else {
+            // Se non è nel formato corretto, restituisci null o una stringa vuota a seconda
+            // del tuo caso
+            return null;
+        }
+    }
 
     /*
      * Chiave con il quale verranno creati i vari token

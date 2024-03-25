@@ -1,15 +1,21 @@
 package com.example.socialNetworkPlatform.Services.dto;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+import com.example.socialNetworkPlatform.Entitys.ProfileEntity;
 
 public class UserView {
-    
-    private UUID userId;
+
+    private UUID id_profile;
     private String username;
-    private List<PostView> posts = new ArrayList<>();
+    private String bio;
+    private String email;
+    private Set<ProfileEntity> following = new HashSet<>();
+    private Set<ProfileEntity> followers = new HashSet<>();
+    private List<PostView> posts;
 
     public List<PostView> getPosts() {
         return posts;
@@ -19,15 +25,12 @@ public class UserView {
         this.posts = posts;
     }
 
-    private String bio;
-    private String email;
-
-    public UUID getUserId() {
-        return userId;
+    public UUID getId_profile() {
+        return id_profile;
     }
 
-    public void setUserId(UUID userId) {
-        this.userId = userId;
+    public void setId_profile(UUID id_profile) {
+        this.id_profile = id_profile;
     }
 
     public String getUsername() {
@@ -36,9 +39,7 @@ public class UserView {
 
     public void setUsername(String username) {
         this.username = username;
-        ;
     }
-
 
     public String getBio() {
         return bio;
@@ -55,4 +56,21 @@ public class UserView {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public Set<ProfileEntity> getFollowing() {
+        return following;
+    }
+
+    public void setFollowing(Set<ProfileEntity> following) {
+        this.following = following;
+    }
+
+    public Set<ProfileEntity> getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(Set<ProfileEntity> followers) {
+        this.followers = followers;
+    }
+
 }
