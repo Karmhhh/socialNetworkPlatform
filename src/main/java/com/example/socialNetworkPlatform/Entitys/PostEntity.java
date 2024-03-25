@@ -16,7 +16,7 @@ public class PostEntity {
 
     @ManyToOne
     @JoinColumn(name = "id_Profile")
-    private ProfileEntity joinedProfile;
+    private ProfileEntity profileBy;
 
     public UUID getId_Post() {
         return id_post;
@@ -51,10 +51,10 @@ public class PostEntity {
     }
 
     public ProfileEntity getJoinedProfile() {
-        return joinedProfile;
+        return profileBy;
     }
 
     public void setJoinedProfile(ProfileEntity joinedProfile) {
-        this.joinedProfile = joinedProfile;
+        this.profileBy = joinedProfile;
     }
 }

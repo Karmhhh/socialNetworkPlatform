@@ -1,8 +1,12 @@
 package com.example.socialNetworkPlatform.Entitys;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import org.antlr.v4.runtime.misc.NotNull;
 
 import jakarta.persistence.*;
 
@@ -12,16 +16,21 @@ public class ProfileEntity {
 
     @Id
     private UUID id_profile;
+    @Column(nullable = false)
     private String username;
+    @Column(nullable = false)
     private String password;
     private String bio;
+    @Column(nullable = false) // Assicura che il campo non possa essere nullo nel database
     private String email;
 
+    @OneToMany(mappedBy = "profileBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostEntity> posts = new ArrayList<>();
+
     @ManyToMany
-    @JoinTable(
-        name = "follows",
-        joinColumns = @JoinColumn(name = "follower_id"), // Cambia il nome della colonna per i follower
-        inverseJoinColumns = @JoinColumn(name = "followed_id") // Cambia il nome della colonna per i seguiti
+    @JoinTable(name = "follows", joinColumns = @JoinColumn(name = "follower_id"), // Cambia il nome della colonna per i
+                                                                                  // follower
+            inverseJoinColumns = @JoinColumn(name = "followed_id") // Cambia il nome della colonna per i seguiti
     )
     private Set<ProfileEntity> following = new HashSet<>();
 
@@ -82,6 +91,14 @@ public class ProfileEntity {
 
     public void setFollowers(Set<ProfileEntity> followers) {
         this.followers = followers;
+    }
+
+    public List<PostEntity> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(List<PostEntity> posts) {
+        this.posts = posts;
     }
 
 }

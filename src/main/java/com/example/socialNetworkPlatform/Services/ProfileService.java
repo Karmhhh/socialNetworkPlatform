@@ -22,14 +22,13 @@ import com.example.socialNetworkPlatform.Repositories.PostRepository;
 import com.example.socialNetworkPlatform.Repositories.ProfileRepository;
 
 @Service
-public class UserInfoService implements UserDetailsService {
+public class ProfileService implements UserDetailsService {
+
+    @Autowired
+    PostRepository postRepository;
 
     @Autowired
     private ProfileRepository userRepository;
-
-    @Autowired
-    private PostRepository postRepository;
-
 
     @Autowired
     PasswordEncoder encoder;
@@ -46,6 +45,7 @@ public class UserInfoService implements UserDetailsService {
 
     }
 
+    // --------------------------------------Create----------------------------------
     public ResponseEntity<String> registerUser(UserRegistration user) {
         if (user != null) {
             ProfileEntity newUser = new ProfileEntity();
@@ -61,43 +61,31 @@ public class UserInfoService implements UserDetailsService {
         }
     }
 
-    public ResponseEntity<String> deleteAll() {
-        userRepository.deleteAll();
-        return ResponseEntity.status(201).build();
+    public ResponseEntity<String> addPost(PostEntity myNewPost) {
+        postRepository.save(myNewPost);
+        return ResponseEntity.status(200).body("New Post Added!");
     }
 
-    public ResponseEntity<?> deleteById(UUID id) {
-        try {
-            userRepository.deleteById(id);
-            return ResponseEntity.status(201).build();
-        } catch (Exception ex) {
-            return ResponseEntity.status(404).build();
-        }
-    }
-
+    // --------------------------------------Read----------------------------------
     public List<UserView> getAll() {
 
         List<UserView> usersDto = new ArrayList<>();
-        usersDto.clear();
-        List<ProfileEntity> users = userRepository.findAll();
 
-        for (ProfileEntity user : users) {
+        for (ProfileEntity user : userRepository.findAll()) {
 
             UserView userDto = new UserView();
             List<PostView> posts = new ArrayList<>();
 
-            if (getPostForProfile(user.getId_profile()).size() > 0) {
-                List<PostEntity> filteredPosts = getPostForProfile(user.getId_profile());
-                PostView postdto = new PostView();
-                for (PostEntity post : filteredPosts) {
+            if (user.getPosts().size() > 0) {
+
+                for (PostEntity post : user.getPosts()) {
+                    PostView postdto = new PostView();
                     postdto.setId_post(post.getId_Post());
                     postdto.setBody(post.getBody());
                     postdto.setHeader(post.getHeader());
                     postdto.setCreationDateTime(post.getCreationDateTime());
                     posts.add(postdto);
                 }
-            } else {
-                posts.clear();
             }
 
             userDto.setId_profile(user.getId_profile());
@@ -107,24 +95,19 @@ public class UserInfoService implements UserDetailsService {
             userDto.setPosts(posts);
             usersDto.add(userDto);
 
-        }
-        return (usersDto);
-
-    }
-
-    public List<PostEntity> getPostForProfile(UUID id) {
-        List<PostEntity> allPosts = postRepository.findAll();
-        List<PostEntity> filtredPosts = new ArrayList<>();
-        for (PostEntity postEntity : allPosts) {
-            if (postEntity.getJoinedProfile() != null && postEntity.getJoinedProfile().getId_profile().equals(id)) {
-                filtredPosts.add(postEntity);
+            for (ProfileEntity follower : user.getFollowers()) {
+                userDto.getFollowers().add(follower.getUsername());
             }
 
+            for (ProfileEntity follower : user.getFollowing()) {
+                userDto.getFollowing().add(follower.getUsername());
+            }
         }
-        return filtredPosts;
+        return (usersDto);
     }
 
-    public ProfileEntity follow(UUID followerId, UUID followedId) {
+    // --------------------------------------Update----------------------------------
+    public void follow(UUID followerId, UUID followedId) {
         Optional<ProfileEntity> followerOptional = userRepository.findById(followerId);
         Optional<ProfileEntity> followedOptional = userRepository.findById(followedId);
 
@@ -135,25 +118,76 @@ public class UserInfoService implements UserDetailsService {
             follower.getFollowing().add(followed);
             followed.getFollowers().add(follower);
 
-            return userRepository.save(follower);
+            userRepository.save(followed);
+            userRepository.save(follower);
         } else {
             // Gestionare il caso in cui uno o entrambi i profili non esistano
-            return null;
+
+        }
+    }
+
+    public void unfollow(UUID unfollowerId, UUID unfollowedId) {
+        Optional<ProfileEntity> followerOptional = userRepository.findById(unfollowerId);
+        Optional<ProfileEntity> followedOptional = userRepository.findById(unfollowedId);
+
+        if (followerOptional.isPresent() && followedOptional.isPresent()) {
+
+            ProfileEntity unfollower = followerOptional.get();
+            ProfileEntity unfollowed = followedOptional.get();
+
+            unfollower.getFollowing().remove(unfollowed);
+            unfollowed.getFollowers().remove(unfollower);
+
+            userRepository.save(unfollower);
+            userRepository.save(unfollowed);
         }
     }
 
     public ResponseEntity<String> changePassword(String username, String oldPass, String pass) {
         ProfileEntity userDetail = userRepository.findUserByUsername(username).get();
-
         if (encoder.matches(oldPass, userDetail.getPassword())) {
+
             userDetail.setPassword(encoder.encode(pass));
             userRepository.save(userDetail);
 
             return ResponseEntity.ok().build();
-        } else {
 
+        } else {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    // --------------------------------------Delete----------------------------------
+    public ResponseEntity<String> deleteAllProfiles() {
+        userRepository.deleteAll();
+        return ResponseEntity.status(201).build();
+    }
+
+    public ResponseEntity<String> deletePostById(UUID id_post) {
+        postRepository.deleteById(id_post);
+        return ResponseEntity.status(200).body("Post Deleted Succesfully!");
+    }
+
+    public ResponseEntity<?> deleteByIdProfile(UUID id) {
+        try {
+            userRepository.deleteById(id);
+            return ResponseEntity.status(201).build();
+        } catch (Exception ex) {
+            return ResponseEntity.status(404).build();
+        }
+    }
+
+    // public List<PostEntity> getPostForProfile(UUID id) {
+    // List<PostEntity> allPosts = postRepository.findAll();
+    // List<PostEntity> filtredPosts = new ArrayList<>();
+    // for (PostEntity postEntity : allPosts) {
+    // if (postEntity.getJoinedProfile() != null &&
+    // postEntity.getJoinedProfile().getId_profile().equals(id)) {
+    // filtredPosts.add(postEntity);
+    // }
+
+    // }
+    // return filtredPosts;
+    // }
 
 }

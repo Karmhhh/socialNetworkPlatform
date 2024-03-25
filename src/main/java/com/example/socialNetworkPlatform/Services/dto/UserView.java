@@ -13,8 +13,8 @@ public class UserView {
     private String username;
     private String bio;
     private String email;
-    private Set<ProfileEntity> following = new HashSet<>();
-    private Set<ProfileEntity> followers = new HashSet<>();
+    private Set<String> following = new HashSet<>();
+    private Set<String> followers = new HashSet<>();
     private List<PostView> posts;
 
     public List<PostView> getPosts() {
@@ -57,20 +57,21 @@ public class UserView {
         this.email = email;
     }
 
-    public Set<ProfileEntity> getFollowing() {
+    public Set<String> getFollowing() {
         return following;
     }
 
-    public void setFollowing(Set<ProfileEntity> following) {
+    public void setFollowing(Set<String> following) {
         this.following = following;
     }
 
-    public Set<ProfileEntity> getFollowers() {
+    public Set<String> getFollowers() {
         return followers;
     }
 
-    public void setFollowers(Set<ProfileEntity> followers) {
+    public void setFollowers(Set<String> followers) {
         this.followers = followers;
     }
+
 
 }
